@@ -1,10 +1,21 @@
 import os
 import sys
 import urllib
+from subprocess import Popen, PIPE
 
 ROOT_DIR = "."
 EXCLUDE_LIST = ["Home.md", ".githooks", ".git", "_Sidebar.md"]
-WIKI_URL = "https://github.com/returnwellbeing/test_wiki/wiki"
+
+def get_url_of_wikigit():
+    popen = Popen("git config --get remote.origin.url", shell=True, stdout=PIPE)
+    out, error = popen.communicate()
+    out = out.rstrip()
+    if out.endswith(".git"):
+        out = out[:-4]
+    i = out.rfind(".")
+    if (i != -1):
+        out = out[:i] + "/" + out[i+1:]
+    return out
 
 def traversal(root_dir, depth):
     try:
@@ -42,6 +53,6 @@ def traversal(root_dir, depth):
     except PermissionErr:
         pass
 
+WIKI_URL = get_url_of_wikigit()
 sys.stdout.write("[Home](" + WIKI_URL + "/Home)\n")
-
 traversal(ROOT_DIR, 0)
